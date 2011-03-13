@@ -13,7 +13,7 @@
 
         public SuperSimpleViewEngineTests()
         {
-            this.viewEngine = new SuperSimpleViewEngine();
+            this.viewEngine = new SuperSimpleViewEngine(new FakeViewEngineHost());
         }
 
         [Fact]
@@ -507,6 +507,47 @@
             var output = viewEngine.Render(input, model);
 
             Assert.Equal(@"<html><head></head><body><ul><li>Hello Bob</li><li>Hello Jim</li><li>Hello Bill</li></ul></body></html>", output);
+        }
+
+        [Fact]
+        public void Model_with_exclaimation_should_html_encode()
+        {
+            const string input = @"<html><head></head><body>Hello there @!Model.Name;</body></html>";
+            dynamic model = new ExpandoObject();
+            model.Name = "<b>Bob</b>";
+
+            var output = viewEngine.Render(input, model);
+
+            Assert.Equal(@"<html><head></head><body>Hello there &lt;b&gt;Bob&lt;/b&gt;</body></html>", output);
+        }
+
+        [Fact]
+        public void Current_with_exclaimation_and_no_parameters_should_html_encode()
+        {
+            const string input = @"<html><head></head><body><ul>@Each;<li>Hello @!Current</li>@EndEach</ul></body></html>";
+            var model = new List<string>() { "Bob<br/>", "Jim<br/>", "Bill<br/>" };
+
+            var output = viewEngine.Render(input, model);
+
+            Assert.Equal(@"<html><head></head><body><ul><li>Hello Bob&lt;br/&gt;</li><li>Hello Jim&lt;br/&gt;</li><li>Hello Bill&lt;br/&gt;</li></ul></body></html>", output);
+        }
+
+        [Fact]
+        public void Current_with_explaimation_and_parameters_should_html_encode()
+        {
+            const string input = @"<html><head></head><body><ul>@Each.Users;<li>@!Current.Name;</li>@EndEach;</ul></body></html>";
+            dynamic model = new ExpandoObject();
+            dynamic user1 = new ExpandoObject();
+            user1.Name = "Bob<br/>";
+            dynamic user2 = new ExpandoObject();
+            user2.Name = "Jim<br/>";
+            dynamic user3 = new ExpandoObject();
+            user3.Name = "Bill<br/>";
+            model.Users = new List<object>() { user1, user2, user3 };
+
+            var output = viewEngine.Render(input, model);
+
+            Assert.Equal(@"<html><head></head><body><ul><li>Bob&lt;br/&gt;</li><li>Jim&lt;br/&gt;</li><li>Bill&lt;br/&gt;</li></ul></body></html>", output);
         }
     }
 

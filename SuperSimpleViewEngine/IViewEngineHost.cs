@@ -4,7 +4,7 @@ namespace SuperSimpleViewEngine
     /// Provides the view engine with utility functions for
     /// encoding, locating partial view templates etc.
     /// </summary>
-    public interface IViewEngineContext
+    public interface IViewEngineHost
     {
         /// <summary>
         /// Html "safe" encode a string

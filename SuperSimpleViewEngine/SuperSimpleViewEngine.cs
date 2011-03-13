@@ -16,7 +16,7 @@
         /// <summary>
         /// Compiled Regex for single substitutions
         /// </summary>
-        private readonly Regex singleSubstitutionsRegEx = new Regex(@"@Model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?", RegexOptions.Compiled);
+        private readonly Regex singleSubstitutionsRegEx = new Regex(@"@(?<Encode>!)?Model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?", RegexOptions.Compiled);
 
         /// <summary>
         /// Compiled Regex for each blocks
@@ -26,7 +26,7 @@
         /// <summary>
         /// Compiled Regex for each block current substitutions
         /// </summary>
-        private readonly Regex eachItemSubstitutionRegEx = new Regex(@"@Current(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?", RegexOptions.Compiled);
+        private readonly Regex eachItemSubstitutionRegEx = new Regex(@"@(?<Encode>!)?Current(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?", RegexOptions.Compiled);
 
         /// <summary>
         /// Compiled Regex for if blocks
@@ -39,10 +39,17 @@
         private readonly List<Func<string, object, string>> processors;
 
         /// <summary>
+        /// Stores the view engine context
+        /// </summary>
+        private IViewEngineHost viewEngineHost;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SuperSimpleViewEngine"/> class.
         /// </summary>
-        public SuperSimpleViewEngine()
+        public SuperSimpleViewEngine(IViewEngineHost viewEngineHost)
         {
+            this.viewEngineHost = viewEngineHost;
+
             this.processors = new List<Func<string, object, string>>
                 {
                     this.PerformSingleSubstitutions,
@@ -261,7 +268,12 @@
                         return "[ERR!]";
                     }
 
-                    return substitution.Item2 == null ? String.Empty : substitution.Item2.ToString();
+                    if (substitution.Item2 == null)
+                    {
+                        return String.Empty;
+                    }
+
+                    return m.Groups["Encode"].Success ? this.viewEngineHost.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
                 });
         }
 
@@ -322,7 +334,7 @@
                 {
                     if (String.IsNullOrEmpty(eachMatch.Groups["ParameterName"].Value))
                     {
-                        return item.ToString();
+                        return eachMatch.Groups["Encode"].Success ? this.viewEngineHost.HtmlEncode(item.ToString()) : item.ToString();
                     }
 
                     var properties = GetCaptureGroupValues(eachMatch, "ParameterName");
@@ -334,7 +346,12 @@
                         return "[ERR!]";
                     }
 
-                    return substitution.Item2 == null ? String.Empty : substitution.Item2.ToString();
+                    if (substitution.Item2 == null)
+                    {
+                        return string.Empty;
+                    }
+
+                    return eachMatch.Groups["Encode"].Success ? this.viewEngineHost.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
                 });
         }
 

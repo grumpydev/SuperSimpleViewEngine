@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeViewEngineHost.cs" />
+    <Compile Include="IViewEngineHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SuperSimpleViewEngine.cs" />
   </ItemGroup>
