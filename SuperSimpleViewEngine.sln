@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSimpleViewEngine", "SuperSimpleViewEngine\SuperSimpleViewEngine.csproj", "{B286D0FA-EC75-40EA-894C-7EAB762471E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSimpleViewEngine.Tests", "SuperSimpleViewEngine.Tests\SuperSimpleViewEngine.Tests.csproj", "{5FE2484B-F831-4865-A98A-00A373FF3523}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B286D0FA-EC75-40EA-894C-7EAB762471E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B286D0FA-EC75-40EA-894C-7EAB762471E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B286D0FA-EC75-40EA-894C-7EAB762471E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B286D0FA-EC75-40EA-894C-7EAB762471E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FE2484B-F831-4865-A98A-00A373FF3523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FE2484B-F831-4865-A98A-00A373FF3523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FE2484B-F831-4865-A98A-00A373FF3523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FE2484B-F831-4865-A98A-00A373FF3523}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
