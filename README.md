@@ -38,3 +38,10 @@ If the model has property that implements ICollection then you can use an implic
 Example: @If.HasUsers Users found! @EndIf
 
 The above example will expand to "Users found!" if the model has a collection called "Users" and it contains items.
+
+### HTML Encoding
+Both the @Model and @Current keywords (with or without parameters) can have an optional ! after the @ to HTML encode the output.
+
+Example: @!Model.Test
+
+Would HTML encode the output.
