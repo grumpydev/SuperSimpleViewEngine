@@ -549,6 +549,52 @@
 
             Assert.Equal(@"<html><head></head><body><ul><li>Bob&lt;br/&gt;</li><li>Jim&lt;br/&gt;</li><li>Bill&lt;br/&gt;</li></ul></body></html>", output);
         }
+
+        [Fact]
+        public void Should_expand_basic_partials()
+        {
+            const string input = @"<html><head></head><body>@Partial['testing'];</body></html>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s) => "Test partial content";
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            var result = viewEngine.Render(input, new object());
+
+            Assert.Equal(@"<html><head></head><body>Test partial content</body></html>", result);
+        }
+
+        [Fact]
+        public void Should_expand_partial_content_with_model_if_no_model_specified()
+        {
+            const string input = @"<html><head></head><body>@Partial['testing'];</body></html>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s) => "Hello @Model.Name";
+            dynamic model = new ExpandoObject();
+            model.Name = "Bob";
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            var result = viewEngine.Render(input, model);
+
+            Assert.Equal(@"<html><head></head><body>Hello Bob</body></html>", result);
+        }
+
+        [Fact]
+        public void Should_expand_partial_content_with_specified_model_property_if_specified()
+        {
+            const string input = @"<html><head></head><body>@Partial['testing', Model.User];</body></html>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s) => "Hello @Model.Name";
+            dynamic model = new ExpandoObject();
+            dynamic subModel = new ExpandoObject();
+            model.Name = "Jim";
+            subModel.Name = "Bob";
+            model.User = subModel;
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            var result = viewEngine.Render(input, model);
+
+            Assert.Equal(@"<html><head></head><body>Hello Bob</body></html>", result);
+        }
     }
 
     public class User

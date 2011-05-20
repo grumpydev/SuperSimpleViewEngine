@@ -34,6 +34,11 @@
         private readonly Regex conditionalSubstitutionRegEx = new Regex(@"@If(?<Not>Not)?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?(?<Contents>.*?)@EndIf;?", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
+        /// Compiled regex for partial blocks
+        /// </summary>
+        private readonly Regex partialSubstitutionRegEx = new Regex(@"@Partial\['(?<ViewName>.+)'(?<Model>.[ ]?Model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*)?\];?", RegexOptions.Compiled);
+
+        /// <summary>
         /// View engine transform processors
         /// </summary>
         private readonly List<Func<string, object, string>> processors;
@@ -55,6 +60,7 @@
                     this.PerformSingleSubstitutions,
                     this.PerformEachSubstitutions,
                     this.PerformConditionalSubstitutions,
+                    this.PerformPartialSubstitutions,
                 };
         }
 
@@ -118,11 +124,11 @@
         {
             var properties = model.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
-                var property =
-                    properties.Where(p => String.Equals(p.Name, propertyName, StringComparison.InvariantCulture)).
-                    FirstOrDefault();
+            var property =
+                properties.Where(p => String.Equals(p.Name, propertyName, StringComparison.InvariantCulture)).
+                FirstOrDefault();
 
-                return property == null ? new Tuple<bool, object>(false, null) : new Tuple<bool, object>(true, property.GetValue(model, null));
+            return property == null ? new Tuple<bool, object>(false, null) : new Tuple<bool, object>(true, property.GetValue(model, null));
         }
 
         /// <summary>
@@ -379,6 +385,44 @@
                     }
 
                     return predicateResult ? m.Groups["Contents"].Value : String.Empty;
+                });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Perform @Partial partial view expansion
+        /// </summary>
+        /// <param name="template">The template.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>Template with partials expanded</returns>
+        private string PerformPartialSubstitutions(string template, object model)
+        {
+            var result = template;
+
+            result = this.partialSubstitutionRegEx.Replace(
+                result,
+                m =>
+                {
+                    var partialViewName = m.Groups["ViewName"].Value;
+                    var partialModel = model;
+                    var properties = GetCaptureGroupValues(m, "ParameterName");
+
+                    if (m.Groups["Model"].Length > 0)
+                    {
+                        var modelValue = GetPropertyValueFromParameterCollection(model, properties);
+
+                        if (modelValue.Item1 != true)
+                        {
+                            return "[ERR!]";
+                        }
+
+                        partialModel = modelValue.Item2;
+                    }
+
+                    var partialTemplate = this.viewEngineHost.GetTemplate(partialViewName);
+
+                    return this.Render(partialTemplate, partialModel);
                 });
 
             return result;
