@@ -48,7 +48,9 @@ Would HTML encode the output.
 
 ### Partials
 Syntax: @Partial['<template name>'[, Model.Property]]
+
 Example: @Partial['subview.sshtml']; (Renders the partial view with the same model as the parent)
+
 Example: @Partial['subview.sshtml', Model.User]; (Renders the partial view using the User as the model)
 
 Renders a partial view. A property of the current model can be specified to be used as the partial view's model, or it may be omitted to use the current view's model instead.
