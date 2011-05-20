@@ -4,7 +4,7 @@ namespace SuperSimpleViewEngine
 
     public class FakeViewEngineHost : IViewEngineHost
     {
-        public Func<string, string> GetTemplateCallback { get; set; }
+        public Func<string, object, string> GetTemplateCallback { get; set; }
 
         /// <summary>
         /// Html "safe" encode a string
@@ -23,10 +23,11 @@ namespace SuperSimpleViewEngine
         /// Get the contenst of a template
         /// </summary>
         /// <param name="templateName">Name/location of the template</param>
+        /// <param name="model">Model to use to locate the template via conventions</param>
         /// <returns>Contents of the template, or null if not found</returns>
-        public string GetTemplate(string templateName)
+        public string GetTemplate(string templateName, object model)
         {
-            return this.GetTemplateCallback != null ? this.GetTemplateCallback.Invoke(templateName) : string.Empty;
+            return this.GetTemplateCallback != null ? this.GetTemplateCallback.Invoke(templateName, model) : string.Empty;
         }
 
         /// <summary>

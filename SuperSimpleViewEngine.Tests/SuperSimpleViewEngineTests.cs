@@ -555,7 +555,7 @@
         {
             const string input = @"<html><head></head><body>@Partial['testing'];</body></html>";
             var fakeViewEngineHost = new FakeViewEngineHost();
-            fakeViewEngineHost.GetTemplateCallback = (s) => "Test partial content";
+            fakeViewEngineHost.GetTemplateCallback = (s, m) => "Test partial content";
             var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
 
             var result = viewEngine.Render(input, new object());
@@ -568,7 +568,7 @@
         {
             const string input = @"<html><head></head><body>@Partial['testing'];</body></html>";
             var fakeViewEngineHost = new FakeViewEngineHost();
-            fakeViewEngineHost.GetTemplateCallback = (s) => "Hello @Model.Name";
+            fakeViewEngineHost.GetTemplateCallback = (s, m) => "Hello @Model.Name";
             dynamic model = new ExpandoObject();
             model.Name = "Bob";
             var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
@@ -583,7 +583,7 @@
         {
             const string input = @"<html><head></head><body>@Partial['testing', Model.User];</body></html>";
             var fakeViewEngineHost = new FakeViewEngineHost();
-            fakeViewEngineHost.GetTemplateCallback = (s) => "Hello @Model.Name";
+            fakeViewEngineHost.GetTemplateCallback = (s, m) => "Hello @Model.Name";
             dynamic model = new ExpandoObject();
             dynamic subModel = new ExpandoObject();
             model.Name = "Jim";

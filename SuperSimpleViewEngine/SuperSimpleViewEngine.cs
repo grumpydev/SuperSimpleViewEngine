@@ -420,7 +420,7 @@
                         partialModel = modelValue.Item2;
                     }
 
-                    var partialTemplate = this.viewEngineHost.GetTemplate(partialViewName);
+                    var partialTemplate = this.viewEngineHost.GetTemplate(partialViewName, partialModel);
 
                     return this.Render(partialTemplate, partialModel);
                 });

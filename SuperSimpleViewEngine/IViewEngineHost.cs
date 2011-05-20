@@ -17,8 +17,9 @@ namespace SuperSimpleViewEngine
         /// Get the contenst of a template
         /// </summary>
         /// <param name="templateName">Name/location of the template</param>
+        /// <param name="model">Model to use to locate the template via conventions</param>
         /// <returns>Contents of the template, or null if not found</returns>
-        string GetTemplate(string templateName);
+        string GetTemplate(string templateName, object model);
 
         /// <summary>
         /// Gets a uri string for a named route
