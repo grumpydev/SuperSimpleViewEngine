@@ -1,4 +1,4 @@
-namespace SuperSimpleViewEngine
+namespace SuperSimpleViewEngine.Tests
 {
     using System;
 

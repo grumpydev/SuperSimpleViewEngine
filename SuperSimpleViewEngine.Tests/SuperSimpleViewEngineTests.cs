@@ -17,17 +17,6 @@
         }
 
         [Fact]
-        public void Should_return_straight_template_if_model_is_null()
-        {
-            const string input = @"<html><head></head><body>Hello @Model.Name;</body></html>";
-            dynamic model = null;
-
-            var result = this.viewEngine.Render(input, model);
-
-            Assert.Equal(input, result);
-        }
-
-        [Fact]
         public void Should_replaces_valid_property_when_followed_by_closing_tag()
         {
             const string input = @"<html><head></head><body>Hello there @Model.Name;</body></html>";
@@ -594,6 +583,19 @@
             var result = viewEngine.Render(input, model);
 
             Assert.Equal(@"<html><head></head><body>Hello Bob</body></html>", result);
+        }
+
+        [Fact]
+        public void Should_expand_partial_content_even_with_no_model()
+        {
+            const string input = @"<html><head></head><body>@Partial['testing'];</body></html>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s, m) => "Test partial content";
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            var result = viewEngine.Render(input, null);
+
+            Assert.Equal(@"<html><head></head><body>Test partial content</body></html>", result);
         }
     }
 
