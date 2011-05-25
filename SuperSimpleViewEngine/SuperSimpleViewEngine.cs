@@ -39,6 +39,16 @@
         private readonly Regex partialSubstitutionRegEx = new Regex(@"@Partial\['(?<ViewName>.+)'(?<Model>.[ ]?Model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*)?\];?", RegexOptions.Compiled);
 
         /// <summary>
+        /// Compiled RegEx for section blocks
+        /// </summary>
+        private readonly Regex sectionSubstitutionRegEx = new Regex(@"(?:@Section\[\'(?<SectionName>.+?)\'\];?(?<SectionContents>.*?)@EndSection;?)", RegexOptions.Compiled | RegexOptions.Singleline);
+
+        /// <summary>
+        /// Compiled RegEx for master page declaration
+        /// </summary>
+        private readonly Regex masterPageSubstitutionRegEx = new Regex(@"^(?:@Master\[\'(?<MasterPage>.+?)\'\]);?", RegexOptions.Compiled);
+
+        /// <summary>
         /// View engine transform processors
         /// </summary>
         private readonly List<Func<string, object, string>> processors;
