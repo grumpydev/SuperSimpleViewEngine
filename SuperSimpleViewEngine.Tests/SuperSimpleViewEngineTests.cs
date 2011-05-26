@@ -597,6 +597,38 @@
 
             Assert.Equal(@"<html><head></head><body>Test partial content</body></html>", result);
         }
+
+        [Fact]
+        public void Should_try_to_locate_master_page_if_one_specified()
+        {
+            const string input = "@Master['myMaster']\r\n@Section['Header'];\r\nHeader\r\n@EndSection\r\n@Section['Footer']\r\nFooter\r\n@EndSection";
+            var called = false;
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s, m) =>
+                {
+                    called = (s == "myMaster");
+                    return "";
+                };
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            viewEngine.Render(input, null);
+
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void Should_replace_sections_in_master_page()
+        {
+            const string input = "@Master['myMaster']\r\n@Section['Header'];\r\nHeader\r\n@EndSection\r\n@Section['Footer']\r\nFooter\r\n@EndSection";
+            const string master = @"<div id='header'>@Section['Header'];</div><div id='footer'>@Section['Footer'];</div>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            fakeViewEngineHost.GetTemplateCallback = (s, m) => master;
+            var viewEngine = new SuperSimpleViewEngine(fakeViewEngineHost);
+
+            var result = viewEngine.Render(input, null);
+
+            Assert.Equal("<div id='header'>\r\nHeader\r\n</div><div id='footer'>\r\nFooter\r\n</div>", result);
+        }
     }
 
     public class User
