@@ -5,6 +5,7 @@ namespace SuperSimpleViewEngine.Tests
     public class FakeViewEngineHost : IViewEngineHost
     {
         public Func<string, object, string> GetTemplateCallback { get; set; }
+        public Func<string, string> ExpandPathCallBack { get; set; }
 
         /// <summary>
         /// Html "safe" encode a string
@@ -39,6 +40,16 @@ namespace SuperSimpleViewEngine.Tests
         public string GetUriString(string name, params string[] parameters)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Expands a path to include any base paths
+        /// </summary>
+        /// <param name="path">Path to expand</param>
+        /// <returns>Expanded path</returns>
+        public string ExpandPath(string path)
+        {
+            return this.ExpandPathCallBack != null ? this.ExpandPathCallBack.Invoke(path) : path;
         }
     }
 }
