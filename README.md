@@ -8,7 +8,7 @@ Models can either be standard types, or ExpandoObjects (or any other object impl
 Syntax
 ------
 
-All commands have an optional semi-colon delimiter which can be used to remove ambiguity. Any [.Parameters] paraneter can be multiple levels deep (e.g. This.Property.That.Property).
+All commands have an optional semi-colon delimiter which can be used to remove ambiguity. Any [.Parameters] parameter can be multiple levels deep (e.g. This.Property.That.Property).
 
 ### Standard variable substitution
 Syntax: @Model[.Parameters]
