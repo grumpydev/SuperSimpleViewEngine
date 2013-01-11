@@ -20,9 +20,14 @@
         private static readonly Regex SingleSubstitutionsRegEx = new Regex(@"@(?<Encode>!)?Model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?", RegexOptions.Compiled);
 
         /// <summary>
+        /// Compiled Regex for context subsituations
+        /// </summary>
+        private static readonly Regex ContextSubstitutionsRegEx = new Regex(@"@(?<Encode>!)?Context(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?", RegexOptions.Compiled);
+
+        /// <summary>
         /// Compiled Regex for each blocks
         /// </summary>
-        private static readonly Regex EachSubstitutionRegEx = new Regex(@"@Each(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?(?<Contents>.*?)@EndEach;?", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex EachSubstitutionRegEx = new Regex(@"@Each(?:\.(?<ModelSource>(Model|Context)+))?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))*;?(?<Contents>.*?)@EndEach;?", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Compiled Regex for each block current substitutions
@@ -32,7 +37,7 @@
         /// <summary>
         /// Compiled Regex for if blocks
         /// </summary>
-        private static readonly Regex ConditionalSubstitutionRegEx = new Regex(@"@If(?<Not>Not)?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?(?<Contents>.*?)@EndIf;?", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex ConditionalSubstitutionRegEx = new Regex(@"@If(?<Not>Not)?(?:\.(?<ModelSource>(Model|Context)+))?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?(?<Contents>.*?)@EndIf;?", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Compiled regex for partial blocks
@@ -72,6 +77,7 @@
             this.processors = new List<Func<string, object, IViewEngineHost, string>>
                 {
                     this.PerformSingleSubstitutions,
+                    this.PerformContextSubstitutions,
                     this.PerformEachSubstitutions,
                     this.PerformConditionalSubstitutions,
                     this.PerformPathSubstitutions,
@@ -296,6 +302,37 @@
         }
 
         /// <summary>
+        /// Peforms single @Context.PropertyName substitutions.
+        /// </summary>
+        /// <param name="template">The template.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="host">View engine host</param>
+        /// <returns>Template with @Context.PropertyName blocks expanded.</returns>
+        private string PerformContextSubstitutions(string template, object model, IViewEngineHost host)
+        {
+            return ContextSubstitutionsRegEx.Replace(
+                template,
+                m =>
+                {
+                    var properties = GetCaptureGroupValues(m, "ParameterName");
+
+                    var substitution = GetPropertyValueFromParameterCollection(host.Context, properties);
+
+                    if (!substitution.Item1)
+                    {
+                        return "[ERR!]";
+                    }
+
+                    if (substitution.Item2 == null)
+                    {
+                        return string.Empty;
+                    }
+
+                    return m.Groups["Encode"].Success ? host.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
+                });
+        }
+
+        /// <summary>
         /// Performs @Each.PropertyName substitutions
         /// </summary>
         /// <param name="template">The template.</param>
@@ -309,6 +346,13 @@
                 m =>
                 {
                     var properties = GetCaptureGroupValues(m, "ParameterName");
+
+                    var modelSource = GetCaptureGroupValues(m, "ModelSource").SingleOrDefault();
+
+                    if (modelSource != null && modelSource.Equals("Context", StringComparison.OrdinalIgnoreCase))
+                    {
+                        model = host.Context;
+                    }
 
                     var substitutionObject = GetPropertyValueFromParameterCollection(model, properties);
 
@@ -391,6 +435,13 @@
                 m =>
                 {
                     var properties = GetCaptureGroupValues(m, "ParameterName");
+
+                    var modelSource = GetCaptureGroupValues(m, "ModelSource").SingleOrDefault();
+
+                    if (modelSource != null && modelSource.Equals("Context", StringComparison.OrdinalIgnoreCase))
+                    {
+                        model = host.Context;
+                    }
 
                     var predicateResult = GetPredicateResult(model, properties);
 
@@ -477,7 +528,7 @@
         private string PerformMasterPageSubstitutions(string template, object model, IViewEngineHost host)
         {
             var masterPageName = this.GetMasterPageName(template);
-            
+
             if (string.IsNullOrWhiteSpace(masterPageName))
             {
                 return template;
