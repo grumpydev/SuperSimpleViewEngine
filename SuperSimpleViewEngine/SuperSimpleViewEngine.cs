@@ -37,7 +37,7 @@
         /// <summary>
         /// Compiled Regex for if blocks
         /// </summary>
-        private static readonly Regex ConditionalSubstitutionRegEx = new Regex(@"@If(?<Not>Not)?(?:\.(?<ModelSource>(Model|Context)+))?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?(?<Contents>.*?)@EndIf;?", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex ConditionalSubstitutionRegEx = new Regex(@"@If(?<Not>Not)?(?<Null>Null)?(?:\.(?<ModelSource>(Model|Context)+))?(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))+;?(?<Contents>.*?)@EndIf;?", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Compiled regex for partial blocks
@@ -211,8 +211,9 @@
         /// </summary>
         /// <param name="item">The item to evaluate</param>
         /// <param name="properties">Property list to evaluate</param>
+        /// <param name="nullCheck">Whether to check for null, rather than straight boolean</param>
         /// <returns>Bool representing the predicate result</returns>
-        private static bool GetPredicateResult(object item, IEnumerable<string> properties)
+        private static bool GetPredicateResult(object item, IEnumerable<string> properties, bool nullCheck)
         {
             var substitutionObject = GetPropertyValueFromParameterCollection(item, properties);
 
@@ -226,23 +227,23 @@
                 return GetHasPredicateResultFromSubstitutionObject(substitutionObject.Item2);
             }
 
-            if (substitutionObject.Item2 == null)
-            {
-                return false;
-            }
-
-            return GetPredicateResultFromSubstitutionObject(substitutionObject.Item2);
+            return GetPredicateResultFromSubstitutionObject(substitutionObject.Item2, nullCheck);
         }
 
         /// <summary>
         /// Returns the predicate result if the substitionObject is a valid bool
         /// </summary>
         /// <param name="substitutionObject">The substitution object.</param>
+        /// <param name="nullCheck"></param>
         /// <returns>Bool value of the substitutionObject, or false if unable to cast.</returns>
-        private static bool GetPredicateResultFromSubstitutionObject(object substitutionObject)
+        private static bool GetPredicateResultFromSubstitutionObject(object substitutionObject, bool nullCheck)
         {
-            var predicateResult = false;
+            if (nullCheck)
+            {
+                return substitutionObject == null;
+            }
 
+            var predicateResult = false;
             var substitutionBool = substitutionObject as bool?;
             if (substitutionBool != null)
             {
@@ -443,7 +444,7 @@
                         model = host.Context;
                     }
 
-                    var predicateResult = GetPredicateResult(model, properties);
+                    var predicateResult = GetPredicateResult(model, properties, m.Groups["Null"].Value == "Null");
 
                     if (m.Groups["Not"].Value == "Not")
                     {

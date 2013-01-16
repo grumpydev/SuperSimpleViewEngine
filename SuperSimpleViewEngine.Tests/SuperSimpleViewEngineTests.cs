@@ -992,6 +992,50 @@
 
             Assert.Equal(@"<html><head></head><body><ul><li>Hello Bob, Nancy says hello!</li><li>Hello Jim, Nancy says hello!</li><li>Hello Bill, Nancy says hello!</li></ul></body></html>", output);
         }
+
+        [Fact]
+        public void Should_include_block_with_ifnull_if_value_null()
+        {
+            const string input = @"<html><head></head><body>@IfNull.Name;No users found@EndIf;</body></html>";
+            var model = new User(null, true);
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body>No users found</body></html>", output);
+        }
+
+        [Fact]
+        public void Should_not_include_block_with_ifnull_if_value_non_null()
+        {
+            const string input = @"<html><head></head><body>@IfNull.Name;No users found@EndIf;</body></html>";
+            var model = new User("Bob", true);
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body></body></html>", output);
+        }
+
+        [Fact]
+        public void Should_include_block_with_ifnotnull_if_value_non_null()
+        {
+            const string input = @"<html><head></head><body>@IfNotNull.Name;Hello @Model.Name@EndIf;</body></html>";
+            var model = new User("Bob", true);
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body>Hello Bob</body></html>", output);
+        }
+
+        [Fact]
+        public void Should_not_include_block_with_ifnotnull_if_value_null()
+        {
+            const string input = @"<html><head></head><body>@IfNotNull.Name;Hello @Model.Name@EndIf;</body></html>";
+            var model = new User(null, true);
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body></body></html>", output);
+        }
     }
 
     public class User
