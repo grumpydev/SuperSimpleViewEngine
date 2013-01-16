@@ -65,6 +65,11 @@
         private static readonly Regex PathExpansionRegEx = new Regex(@"(?:@Path\[\'(?<Path>.+?)\'\]);?", RegexOptions.Compiled);
 
         /// <summary>
+        /// Compiled RegEx for the CSRF anti forgery token
+        /// </summary>
+        private static readonly Regex AntiForgeryTokenRegEx = new Regex(@"@AntiForgeryToken;?", RegexOptions.Compiled);
+
+        /// <summary>
         /// View engine transform processors
         /// </summary>
         private readonly List<Func<string, object, IViewEngineHost, string>> processors;
@@ -81,6 +86,7 @@
                     this.PerformEachSubstitutions,
                     this.PerformConditionalSubstitutions,
                     this.PerformPathSubstitutions,
+                    this.PerformAntiForgeryTokenSubstitutions,
                     this.PerformPartialSubstitutions,
                     this.PerformMasterPageSubstitutions,
                 };
@@ -478,6 +484,18 @@
                 });
 
             return result;
+        }
+
+        /// <summary>
+        /// Perform CSRF anti forgery token expansions
+        /// </summary>
+        /// <param name="template">The template.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="host">View engine host</param>
+        /// <returns>Template with anti forgery tokens expanded</returns>
+        private string PerformAntiForgeryTokenSubstitutions(string template, object model, IViewEngineHost host)
+        {
+            return AntiForgeryTokenRegEx.Replace(template, x => host.AntiForgeryToken());
         }
 
         /// <summary>

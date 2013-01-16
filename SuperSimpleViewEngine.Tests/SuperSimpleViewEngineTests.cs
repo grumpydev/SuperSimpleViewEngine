@@ -705,6 +705,18 @@
         }
 
         [Fact]
+        public void Should_expand_anti_forgery_tokens()
+        {
+            const string input = "<html><body><form>@AntiForgeryToken</form><body></html>";
+            var fakeViewEngineHost = new FakeViewEngineHost();
+            var viewEngine = new SuperSimpleViewEngine();
+
+            var result = viewEngine.Render(input, null, fakeViewEngineHost);
+
+            Assert.Equal("<html><body><form>CSRF</form><body></html>", result);
+        }
+
+        [Fact]
         public void Should_replace_primitive_context_with_value()
         {
             // Given

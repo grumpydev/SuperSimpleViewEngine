@@ -57,6 +57,11 @@ namespace SuperSimpleViewEngine.Tests
             return this.ExpandPathCallBack != null ? this.ExpandPathCallBack.Invoke(path) : path;
         }
 
+        public string AntiForgeryToken()
+        {
+            return "CSRF";
+        }
+
         private class FakeContext
         {
             public FakeContext()
