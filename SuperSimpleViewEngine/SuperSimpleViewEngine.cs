@@ -383,16 +383,19 @@
                     var result = string.Empty;
                     foreach (var item in substitutionEnumerable)
                     {
-                        result += ReplaceCurrentMatch(contents, item, host);
+                        var postConditionalResult = PerformConditionalSubstitutions(contents, item, host);
+                        
+                        result += ReplaceCurrentMatch(postConditionalResult, item, host);
                     }
 
                     return result;
                 });
         }
-
+        
         /// <summary>
         /// Expand a @Current match inside an @Each iterator
         /// </summary>
+        /// <param name="template">The template</param>
         /// <param name="contents">Contents of the @Each block</param>
         /// <param name="item">Current item from the @Each enumerable</param>
         /// <param name="host">View engine host</param>
@@ -411,18 +414,21 @@
                     var properties = GetCaptureGroupValues(eachMatch, "ParameterName");
 
                     var substitution = GetPropertyValueFromParameterCollection(item, properties);
-
-                    if (!substitution.Item1)
+                    
+                    if (!substitution.Item1) // Did value eval fail
                     {
                         return "[ERR!]";
                     }
-
-                    if (substitution.Item2 == null)
+                    
+                    if (substitution.Item2 == null) // Is evaluated value null
                     {
                         return string.Empty;
                     }
 
-                    return eachMatch.Groups["Encode"].Success ? host.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
+
+                    return eachMatch.Groups["Encode"].Success
+                               ? host.HtmlEncode(substitution.Item2.ToString())
+                               : substitution.Item2.ToString();
                 });
         }
 
