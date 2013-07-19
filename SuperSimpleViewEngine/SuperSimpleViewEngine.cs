@@ -342,7 +342,7 @@
         /// <summary>
         /// Performs @Each.PropertyName substitutions
         /// </summary>
-        /// <param name="template">The template</param>
+        /// <param name="template">The template.</param>
         /// <param name="model">The model.</param>
         /// <param name="host">View engine host</param>
         /// <returns>Template with @Each.PropertyName blocks expanded.</returns>
@@ -391,7 +391,7 @@
                     return result;
                 });
         }
-        
+
         /// <summary>
         /// Expand a @Current match inside an @Each iterator
         /// </summary>
@@ -413,12 +413,12 @@
                     var properties = GetCaptureGroupValues(eachMatch, "ParameterName");
 
                     var substitution = GetPropertyValueFromParameterCollection(item, properties);
-                    
+
                     if (!substitution.Item1)
                     {
                         return "[ERR!]";
                     }
-                    
+
                     if (substitution.Item2 == null)
                     {
                         return string.Empty;
