@@ -342,7 +342,7 @@
         /// <summary>
         /// Performs @Each.PropertyName substitutions
         /// </summary>
-        /// <param name="template">The template.</param>
+        /// <param name="template">The template</param>
         /// <param name="model">The model.</param>
         /// <param name="host">View engine host</param>
         /// <returns>Template with @Each.PropertyName blocks expanded.</returns>
@@ -395,7 +395,6 @@
         /// <summary>
         /// Expand a @Current match inside an @Each iterator
         /// </summary>
-        /// <param name="template">The template</param>
         /// <param name="contents">Contents of the @Each block</param>
         /// <param name="item">Current item from the @Each enumerable</param>
         /// <param name="host">View engine host</param>
@@ -415,20 +414,18 @@
 
                     var substitution = GetPropertyValueFromParameterCollection(item, properties);
                     
-                    if (!substitution.Item1) // Did value eval fail
+                    if (!substitution.Item1)
                     {
                         return "[ERR!]";
                     }
                     
-                    if (substitution.Item2 == null) // Is evaluated value null
+                    if (substitution.Item2 == null)
                     {
                         return string.Empty;
                     }
 
 
-                    return eachMatch.Groups["Encode"].Success
-                               ? host.HtmlEncode(substitution.Item2.ToString())
-                               : substitution.Item2.ToString();
+                    return eachMatch.Groups["Encode"].Success ? host.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
                 });
         }
 
