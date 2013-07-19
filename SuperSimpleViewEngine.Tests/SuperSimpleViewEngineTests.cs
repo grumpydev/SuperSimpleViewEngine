@@ -132,6 +132,31 @@
             Assert.Equal(@"<html><head></head><body><ul><li id=""Bob"">Bob</li><li id=""Jim"">Jim</li><li id=""Bill"">Bill</li></ul></body></html>", output);
         }
 
+
+        [Fact]
+        public void Should_evaluate_current_conditional_inside_each()
+        {
+            const string input = @"<html><head></head><body><ul>@Each.Users;<li>@Current.Name:@If.IsGreekCitizen;<b>Yay Greece!</b>@EndIf;</li>@EndEach;</ul></body></html>";
+            dynamic model = new ExpandoObject();
+            model.Users = new List<object>() { new { Name = "Bob", IsGreekCitizen = true }, new { Name = "Malin", IsGreekCitizen = false } };
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body><ul><li>Bob:<b>Yay Greece!</b></li><li>Malin:</li></ul></body></html>", output);
+        }
+
+        [Fact]
+        public void Should_not_evaluate_current_conditional_from_outside_each()
+        {
+            const string input = @"<html><head></head><body>@If.HasUsers;Yay Users!@EndIf<ul>@Each.Users;<li>@Current.Name:@If.IsGreekCitizen;<b>Yay Greece!</b>@EndIf;</li>@EndEach;</ul>@IfNot.HasUsers;Yay Users!@EndIf</body></html>";
+            dynamic model = new ExpandoObject();
+            model.Users = new List<object>() { new { Name = "Bob", IsGreekCitizen = true }, new { Name = "Malin", IsGreekCitizen = false } };
+
+            var output = viewEngine.Render(input, model, this.fakeHost);
+
+            Assert.Equal(@"<html><head></head><body>Yay Users!<ul><li>Bob:<b>Yay Greece!</b></li><li>Malin:</li></ul></body></html>", output);
+        }
+
         [Fact]
         public void Should_try_to_use_non_enumerable_in_each_shows_error()
         {

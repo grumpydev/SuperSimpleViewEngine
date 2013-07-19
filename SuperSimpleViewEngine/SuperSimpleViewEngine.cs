@@ -383,7 +383,9 @@
                     var result = string.Empty;
                     foreach (var item in substitutionEnumerable)
                     {
-                        result += ReplaceCurrentMatch(contents, item, host);
+                        var postConditionalResult = PerformConditionalSubstitutions(contents, item, host);
+                        
+                        result += ReplaceCurrentMatch(postConditionalResult, item, host);
                     }
 
                     return result;
@@ -421,6 +423,7 @@
                     {
                         return string.Empty;
                     }
+
 
                     return eachMatch.Groups["Encode"].Success ? host.HtmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
                 });
